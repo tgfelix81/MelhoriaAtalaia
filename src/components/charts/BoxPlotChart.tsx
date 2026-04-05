@@ -32,7 +32,7 @@ export function BoxPlotChart({ grades }: { grades: number[] }) {
 
       {/* Box (Q1 to Q3) */}
       <div
-        className="absolute top-1/4 bottom-1/4 bg-blue-100/80 border border-blue-400 rounded-sm shadow-sm transition-all duration-500 group"
+        className="absolute top-1/4 bottom-1/4 bg-blue-100/80 border border-[#3B82F6] rounded-sm shadow-sm transition-all duration-500 group"
         style={{ left: scale(stats.q1), width: `${((stats.q3 - stats.q1) / 10) * 100}%` }}
       >
         <TooltipProvider>
@@ -54,7 +54,7 @@ export function BoxPlotChart({ grades }: { grades: number[] }) {
 
       {/* Median Line */}
       <div
-        className="absolute top-1/4 bottom-1/4 w-0.5 bg-blue-700 transition-all duration-500"
+        className="absolute top-1/4 bottom-1/4 w-0.5 bg-[#3B82F6] transition-all duration-500"
         style={{ left: scale(stats.median) }}
       />
 
@@ -64,7 +64,7 @@ export function BoxPlotChart({ grades }: { grades: number[] }) {
           <Tooltip key={i}>
             <TooltipTrigger asChild>
               <div
-                className="absolute top-1/2 w-3 h-3 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-red-500 bg-white shadow-sm cursor-help hover:bg-red-50 transition-colors"
+                className="absolute top-1/2 w-3 h-3 -translate-y-1/2 -translate-x-1/2 rounded-full border-2 border-[#EF4444] bg-white shadow-sm cursor-help hover:bg-red-50 transition-colors"
                 style={{ left: scale(val) }}
               />
             </TooltipTrigger>

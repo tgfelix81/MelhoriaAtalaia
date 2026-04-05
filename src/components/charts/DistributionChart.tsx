@@ -82,7 +82,8 @@ export function DistributionChart({ grades }: { grades: number[] }) {
         />
         <Bar
           dataKey="frequencia"
-          fill="hsl(var(--primary))"
+          fill="#3B82F6"
+          fillOpacity={0.8}
           radius={[4, 4, 0, 0]}
           maxBarSize={40}
           animationDuration={800}
@@ -90,7 +91,7 @@ export function DistributionChart({ grades }: { grades: number[] }) {
         <Line
           type="monotone"
           dataKey="curvaNormal"
-          stroke="#3b82f6"
+          stroke="#A855F7"
           strokeWidth={2}
           dot={false}
           activeDot={false}

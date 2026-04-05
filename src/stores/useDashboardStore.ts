@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 
 export type StoreState = {
-  turma: string
+  uete: string
   disciplina: string
+  tipoProva: string
   selectedStudentId: string | null
 }
 
 let state: StoreState = {
-  turma: 'Todas',
+  uete: 'Todas',
   disciplina: 'Todas',
+  tipoProva: 'Todas',
   selectedStudentId: null,
 }
 

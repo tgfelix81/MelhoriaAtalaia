@@ -2,31 +2,57 @@ import { useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BoxPlotChart } from '@/components/charts/BoxPlotChart'
 import { DistributionChart } from '@/components/charts/DistributionChart'
-import { MOCK_STUDENTS } from '@/lib/mock-data'
+import { ScatterPlotChart } from '@/components/charts/ScatterPlotChart'
+import { StandardDeviationChart } from '@/components/charts/StandardDeviationChart'
+import { ENRICHED_NOTAS } from '@/lib/mock-data'
 import useDashboardStore from '@/stores/useDashboardStore'
 import { Info } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function MainCharts() {
-  const { turma, disciplina } = useDashboardStore()
+  const { uete, disciplina, tipoProva } = useDashboardStore()
 
-  const validGrades = useMemo(() => {
+  const { validGrades, scatterData } = useMemo(() => {
     const grades: number[] = []
-    MOCK_STUDENTS.forEach((student) => {
-      if (turma !== 'Todas' && student.className !== turma) return
-      student.grades.forEach((g) => {
-        if (disciplina !== 'Todas' && g.subject !== disciplina) return
-        grades.push(g.value)
-      })
+    const scatter: { valor: number; name: string }[] = []
+
+    ENRICHED_NOTAS.forEach((n) => {
+      if (uete !== 'Todas' && n.aluno.uete !== uete) return
+      if (disciplina !== 'Todas' && n.disciplina.nome_disciplina !== disciplina) return
+      if (tipoProva !== 'Todas' && n.disciplina.tipo_prova !== tipoProva) return
+
+      grades.push(n.valor)
+      scatter.push({ valor: n.valor, name: n.aluno.nome_guerra })
     })
-    return grades
-  }, [turma, disciplina])
+
+    return { validGrades: grades, scatterData: scatter }
+  }, [uete, disciplina, tipoProva])
 
   return (
     <div
-      className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 mt-4 animate-fade-in-up"
+      className="grid gap-4 md:grid-cols-2 mt-6 animate-fade-in-up"
       style={{ animationDelay: '300ms' }}
     >
+      <Card className="flex flex-col">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Histograma de Notas</CardTitle>
+          <CardDescription>Frequência versus Curva Normal Teórica</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col justify-end">
+          <DistributionChart grades={validGrades} />
+        </CardContent>
+      </Card>
+
+      <Card className="flex flex-col">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Dispersão de Alunos</CardTitle>
+          <CardDescription>Distribuição individual das notas</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col justify-end">
+          <ScatterPlotChart gradesData={scatterData} />
+        </CardContent>
+      </Card>
+
       <Card className="flex flex-col">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
@@ -39,14 +65,13 @@ export function MainCharts() {
                 <TooltipContent className="max-w-xs">
                   <p className="text-xs">
                     Exibe a dispersão das notas. A caixa representa os 50% centrais (onde a maioria
-                    dos alunos está). Os pontos vermelhos são outliers, indicando desempenho
-                    estatisticamente muito abaixo do resto do grupo.
+                    dos alunos está). Os pontos vermelhos são outliers.
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <CardDescription>Dispersão e identificação de extremos</CardDescription>
+          <CardDescription>Quartis e identificação de extremos</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col justify-center pb-8">
           <BoxPlotChart grades={validGrades} />
@@ -55,11 +80,11 @@ export function MainCharts() {
 
       <Card className="flex flex-col">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Distribuição de Notas</CardTitle>
-          <CardDescription>Frequência versus Curva Normal Teórica</CardDescription>
+          <CardTitle className="text-base">Análise de Desvio Padrão</CardTitle>
+          <CardDescription>Agrupamento por distância da média</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col justify-end">
-          <DistributionChart grades={validGrades} />
+          <StandardDeviationChart grades={validGrades} />
         </CardContent>
       </Card>
     </div>

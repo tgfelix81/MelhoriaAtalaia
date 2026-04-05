@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Activity, AlertTriangle, Target, TrendingDown } from 'lucide-react'
-import { MOCK_STUDENTS } from '@/lib/mock-data'
+import { ENRICHED_NOTAS } from '@/lib/mock-data'
 import useDashboardStore from '@/stores/useDashboardStore'
 import {
   calculateMean,
@@ -11,37 +11,32 @@ import {
 } from '@/lib/statistics'
 
 export function KPICards() {
-  const { turma, disciplina } = useDashboardStore()
+  const { uete, disciplina, tipoProva } = useDashboardStore()
 
   const stats = useMemo(() => {
-    const filteredGrades: number[] = []
     let alerts = 0
     let outliers = 0
 
-    // Gather valid grades for the filter
-    const allValidGrades: { studentId: string; grade: number }[] = []
-
-    MOCK_STUDENTS.forEach((student) => {
-      if (turma !== 'Todas' && student.className !== turma) return
-      student.grades.forEach((g) => {
-        if (disciplina !== 'Todas' && g.subject !== disciplina) return
-        allValidGrades.push({ studentId: student.id, grade: g.value })
-      })
+    const validGrades = ENRICHED_NOTAS.filter((n) => {
+      if (uete !== 'Todas' && n.aluno.uete !== uete) return false
+      if (disciplina !== 'Todas' && n.disciplina.nome_disciplina !== disciplina) return false
+      if (tipoProva !== 'Todas' && n.disciplina.tipo_prova !== tipoProva) return false
+      return true
     })
 
-    const gradesOnly = allValidGrades.map((g) => g.grade)
+    const gradesOnly = validGrades.map((g) => g.valor)
     const mean = calculateMean(gradesOnly)
     const sd = calculateStandardDeviation(gradesOnly, mean)
     const { q1, iqr } = calculateQuartiles(gradesOnly)
 
-    allValidGrades.forEach((g) => {
-      const level = getAlertLevel(g.grade, mean, sd, q1, iqr)
+    validGrades.forEach((g) => {
+      const level = getAlertLevel(g.valor, mean, sd, q1, iqr)
       if (level !== 'Dentro do padrão') alerts++
       if (level === 'Outlier negativo' || level === 'Prioridade alta') outliers++
     })
 
     return { mean, sd, alerts, outliers }
-  }, [turma, disciplina])
+  }, [uete, disciplina, tipoProva])
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -51,10 +46,10 @@ export function KPICards() {
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-slate-600">Média Geral</CardTitle>
-          <Target className="h-4 w-4 text-blue-500" />
+          <Target className="h-4 w-4 text-[#3B82F6]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.mean.toFixed(2)}</div>
+          <div className="text-2xl font-bold text-slate-900">{stats.mean.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground mt-1">Média da distribuição atual</p>
         </CardContent>
       </Card>
@@ -65,10 +60,10 @@ export function KPICards() {
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-slate-600">Desvio Padrão</CardTitle>
-          <Activity className="h-4 w-4 text-teal-500" />
+          <Activity className="h-4 w-4 text-[#A855F7]" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.sd.toFixed(2)}</div>
+          <div className="text-2xl font-bold text-slate-900">{stats.sd.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground mt-1">Volatilidade das notas</p>
         </CardContent>
       </Card>
@@ -79,11 +74,11 @@ export function KPICards() {
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-amber-700">Alertas Ativos</CardTitle>
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTriangle className="h-4 w-4 text-[#FBBF24]" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-amber-700">{stats.alerts}</div>
-          <p className="text-xs text-amber-600/80 mt-1">Atenção ou Risco</p>
+          <p className="text-xs text-amber-600/80 mt-1">Atenção ou Risco Moderado</p>
         </CardContent>
       </Card>
 
@@ -93,11 +88,11 @@ export function KPICards() {
       >
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-red-700">Apoio Prioritário</CardTitle>
-          <TrendingDown className="h-4 w-4 text-red-500" />
+          <TrendingDown className="h-4 w-4 text-[#EF4444]" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-red-700">{stats.outliers}</div>
-          <p className="text-xs text-red-600/80 mt-1">Outliers negativos identificados</p>
+          <p className="text-xs text-red-600/80 mt-1">Outliers negativos extremos</p>
         </CardContent>
       </Card>
     </div>
