@@ -121,6 +121,7 @@ function randomNormal(mean: number, stdDev: number): number {
 }
 
 export const ALUNOS: Aluno[] = []
+export const MOCK_STUDENTS = ALUNOS
 export const DISCIPLINAS: Disciplina[] = []
 export const NOTAS: Nota[] = []
 
