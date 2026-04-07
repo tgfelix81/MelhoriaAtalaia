@@ -1,9 +1,4 @@
-export type AlertLevel =
-  | 'Dentro do padrão'
-  | 'Atenção'
-  | 'Risco pedagógico'
-  | 'Outlier negativo'
-  | 'Prioridade alta'
+export type AlertLevel = 'Dentro do padrão' | 'Atenção' | 'Risco' | 'Outlier' | 'Prioridade alta'
 
 export function calculateMean(values: number[]): number {
   if (values.length === 0) return 0
@@ -44,8 +39,8 @@ export function getAlertLevel(
 ): AlertLevel {
   const isOutlier = grade < q1 - 1.5 * iqr
   if (isOutlier && grade < mean - 2 * sd) return 'Prioridade alta'
-  if (isOutlier) return 'Outlier negativo'
-  if (grade < q1 - 0.5 * iqr) return 'Risco pedagógico'
+  if (isOutlier) return 'Outlier'
+  if (grade < q1 - 0.5 * iqr) return 'Risco'
   if (grade < mean - 1 * sd) return 'Atenção'
   return 'Dentro do padrão'
 }

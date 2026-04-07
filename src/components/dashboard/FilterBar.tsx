@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   Select,
   SelectContent,
@@ -10,6 +11,13 @@ import { UETES, DISCIPLINAS_NOMES } from '@/lib/mock-data'
 
 export function FilterBar() {
   const { uete, disciplina, setFilter } = useDashboardStore()
+
+  const disciplinasFiltradas = useMemo(() => {
+    const TFM_NAME = 'Treinamento Físico Militar (TFM)'
+    const tfmSubjects = ['Flexão de Braço', 'Abdominal', 'Flexão na Barra', 'Corrida']
+    const filtered = DISCIPLINAS_NOMES.filter((d) => !tfmSubjects.includes(d))
+    return Array.from(new Set([...filtered, TFM_NAME])).sort()
+  }, [])
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -33,7 +41,7 @@ export function FilterBar() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Todas">Todas as Disciplinas</SelectItem>
-          {DISCIPLINAS_NOMES.map((d) => (
+          {disciplinasFiltradas.map((d) => (
             <SelectItem key={d} value={d}>
               {d}
             </SelectItem>

@@ -6,9 +6,60 @@ import {
   getAlertLevel,
 } from './statistics'
 
+const TFM_SUBJECTS = ['Flexão de Braço', 'Abdominal', 'Flexão na Barra', 'Corrida']
+const TFM_NAME = 'Treinamento Físico Militar (TFM)'
+
 // Simulated Server-side Edge Function for analyzing UETE risk
-export function analisarRiscoUete(uete: string, disciplinaIdOrName: string) {
-  let validGrades = ENRICHED_NOTAS
+export async function analisarRiscoUete(uete: string, disciplinaIdOrName: string) {
+  // Simulate network delay and Supabase Edge Function processing time
+  await new Promise((resolve) => setTimeout(resolve, 800))
+
+  let processedNotas = [...ENRICHED_NOTAS]
+
+  // Inject mock TFM data if missing to ensure feature is demonstrable
+  const hasTFM = processedNotas.some((n) => TFM_SUBJECTS.includes(n.disciplina.nome_disciplina))
+  if (!hasTFM && processedNotas.length > 0) {
+    const sampleStudents = Array.from(new Set(processedNotas.slice(0, 20).map((n) => n.aluno.id)))
+      .map((id) => processedNotas.find((n) => n.aluno.id === id)?.aluno)
+      .filter(Boolean)
+
+    sampleStudents.forEach((aluno) => {
+      TFM_SUBJECTS.forEach((subj, idx) => {
+        processedNotas.push({
+          id: `mock-tfm-${aluno!.id}-${idx}`,
+          valor: 4 + Math.random() * 6, // Random grade between 4 and 10
+          aluno: aluno!,
+          disciplina: { nome_disciplina: subj, tipo_prova: 'Prática' },
+        } as any)
+      })
+    })
+  }
+
+  // TFM Consolidation Logic
+  const studentTFMGrades: Record<string, { sum: number; count: number; aluno: any }> = {}
+  const nonTFMNotas: any[] = []
+
+  processedNotas.forEach((g) => {
+    if (TFM_SUBJECTS.includes(g.disciplina.nome_disciplina)) {
+      if (!studentTFMGrades[g.aluno.id]) {
+        studentTFMGrades[g.aluno.id] = { sum: 0, count: 0, aluno: g.aluno }
+      }
+      studentTFMGrades[g.aluno.id].sum += g.valor
+      studentTFMGrades[g.aluno.id].count += 1
+    } else {
+      nonTFMNotas.push(g)
+    }
+  })
+
+  const tfmNotas = Object.values(studentTFMGrades).map((st) => ({
+    id: `tfm-${st.aluno.id}`,
+    valor: st.sum / st.count,
+    aluno: st.aluno,
+    disciplina: { nome_disciplina: TFM_NAME, tipo_prova: 'Prática' },
+  }))
+
+  let validGrades = [...nonTFMNotas, ...tfmNotas]
+
   if (uete !== 'Todas') {
     validGrades = validGrades.filter((g) => g.aluno.uete === uete)
   }
@@ -28,7 +79,13 @@ export function analisarRiscoUete(uete: string, disciplinaIdOrName: string) {
   const disciplinaCount: Record<string, number> = {}
 
   validGrades.forEach((g) => {
-    const classif = getAlertLevel(g.valor, media, desvio_padrao, q1, iqr)
+    const classifRaw = getAlertLevel(g.valor, media, desvio_padrao, q1, iqr)
+
+    // Map internal alert levels to the UI required ones
+    let classif = classifRaw
+    if (classifRaw === 'Risco pedagógico') classif = 'Risco'
+    if (classifRaw === 'Outlier negativo') classif = 'Outlier'
+
     if (classif !== 'Dentro do padrão') {
       num_alertas++
       alunos_risco.push({
@@ -41,35 +98,43 @@ export function analisarRiscoUete(uete: string, disciplinaIdOrName: string) {
         uete: g.aluno.uete,
         tipo_prova: g.disciplina.tipo_prova,
       })
-      if (classif === 'Outlier negativo' || classif === 'Prioridade alta') {
+      if (classif === 'Outlier' || classif === 'Prioridade alta') {
         num_outliers++
-        disciplinaCount[g.disciplina.nome_disciplina] =
-          (disciplinaCount[g.disciplina.nome_disciplina] || 0) + 1
       }
+      disciplinaCount[g.disciplina.nome_disciplina] =
+        (disciplinaCount[g.disciplina.nome_disciplina] || 0) + 1
     }
   })
 
   const instrutores_atencao = Object.entries(disciplinaCount)
-    .filter(([_, count]) => count >= 2)
     .map(([disciplina, count]) => ({
-      nome_instrutor: `Instrutor(a) - ${disciplina}`,
+      nome_instrutor: `Instrutor(a) - ${disciplina.length > 15 ? disciplina.substring(0, 15) + '...' : disciplina}`,
       disciplina,
       num_alunos_risco: count,
       acao_recomendada: count >= 5 ? 'Revisão metodológica urgente' : 'Acompanhamento pedagógico',
     }))
     .sort((a, b) => b.num_alunos_risco - a.num_alunos_risco)
 
+  const riskByDiscipline = Object.entries(disciplinaCount)
+    .map(([disciplina, count]) => ({
+      disciplina,
+      alunosEmRisco: count,
+    }))
+    .sort((a, b) => b.alunosEmRisco - a.alunosEmRisco)
+    .slice(0, 10)
+
   return {
     estatisticas_gerais: { media, desvio_padrao, num_alertas, num_outliers },
     alunos_risco: alunos_risco.sort((a, b) => {
       const severity: Record<string, number> = {
         'Prioridade alta': 4,
-        'Outlier negativo': 3,
-        'Risco pedagógico': 2,
+        Outlier: 3,
+        Risco: 2,
         Atenção: 1,
       }
       return severity[b.classificacao] - severity[a.classificacao]
     }),
     instrutores_atencao,
+    riskByDiscipline,
   }
 }

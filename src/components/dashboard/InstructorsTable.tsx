@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -8,21 +8,26 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import useDashboardStore from '@/stores/useDashboardStore'
-import { analisarRiscoUete } from '@/lib/edge-function'
-import { Users } from 'lucide-react'
+import { Users, ArrowUpDown } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 
-export function InstructorsTable() {
-  const { uete, disciplina } = useDashboardStore()
+export function InstructorsTable({ data, isLoading }: { data: any[]; isLoading: boolean }) {
+  const [sortDesc, setSortDesc] = useState(true)
 
-  const instructors = useMemo(() => {
-    const analysis = analisarRiscoUete(uete, disciplina)
-    return analysis.instrutores_atencao
-  }, [uete, disciplina])
+  if (isLoading) {
+    return <Skeleton className="h-[400px] w-full rounded-xl" />
+  }
+
+  const instructors = [...(data || [])].sort((a, b) => {
+    return sortDesc
+      ? b.num_alunos_risco - a.num_alunos_risco
+      : a.num_alunos_risco - b.num_alunos_risco
+  })
 
   return (
-    <Card className="animate-fade-in-up h-full flex flex-col" style={{ animationDelay: '600ms' }}>
+    <Card className="animate-fade-in-up h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-base">Apoio Pedagógico a Instrutores</CardTitle>
         <CardDescription>Corpo docente com alta concentração de alunos em risco</CardDescription>
@@ -42,9 +47,19 @@ export function InstructorsTable() {
             <Table>
               <TableHeader className="sticky top-0 bg-slate-50 shadow-sm z-10">
                 <TableRow className="hover:bg-slate-50">
-                  <TableHead>Instrutor</TableHead>
-                  <TableHead className="text-center">Alunos (Risco)</TableHead>
-                  <TableHead>Ação</TableHead>
+                  <TableHead>Nome do Instrutor</TableHead>
+                  <TableHead>Disciplina</TableHead>
+                  <TableHead className="text-center">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setSortDesc(!sortDesc)}
+                      className="h-8 px-2 text-xs font-semibold hover:bg-slate-200"
+                    >
+                      Alunos em Risco
+                      <ArrowUpDown className="ml-2 h-3 w-3" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>Ação Recomendada</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -53,6 +68,14 @@ export function InstructorsTable() {
                     <TableCell>
                       <div className="font-medium whitespace-nowrap text-sm">
                         {inst.nome_instrutor}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className="text-xs text-muted-foreground truncate max-w-[100px]"
+                        title={inst.disciplina}
+                      >
+                        {inst.disciplina}
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
