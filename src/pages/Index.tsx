@@ -8,6 +8,7 @@ import { PerformanceOverviewChart } from '@/components/dashboard/PerformanceOver
 import { RiskLegend } from '@/components/dashboard/RiskLegend'
 import { StandardDeviationChart } from '@/components/charts/StandardDeviationChart'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { DataManagement } from '@/components/dashboard/DataManagement'
 import useDashboardStore from '@/stores/useDashboardStore'
 import { processDashboardData } from '@/lib/data-processor'
 
@@ -45,7 +46,10 @@ export default function Index() {
             Monitoramento de desempenho, alertas e intervenções por UETE e disciplina.
           </p>
         </div>
-        <FilterBar />
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+          <FilterBar />
+          <DataManagement />
+        </div>
       </div>
 
       <KPICards data={data?.estatisticas_gerais} isLoading={isLoading} />

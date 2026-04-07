@@ -17,23 +17,23 @@ export function StandardDeviationChart({ grades }: { grades: number[] }) {
     const mean = calculateMean(grades)
     const sd = calculateStandardDeviation(grades, mean)
 
-    let bucket1 = 0 // < -1 DP
-    let bucket2 = 0 // -1 DP a Média
-    let bucket3 = 0 // Média a +1 DP
-    let bucket4 = 0 // > +1 DP
+    let bucket1 = 0 // < -2 DP (Prioridade Alta)
+    let bucket2 = 0 // -2 a -1 DP (Risco)
+    let bucket3 = 0 // -1 DP a Média (Atenção)
+    let bucket4 = 0 // > Média (Normal)
 
     grades.forEach((g) => {
-      if (g < mean - sd) bucket1++
-      else if (g < mean) bucket2++
-      else if (g < mean + sd) bucket3++
+      if (g < mean - 2 * sd) bucket1++
+      else if (g < mean - sd) bucket2++
+      else if (g < mean) bucket3++
       else bucket4++
     })
 
     return [
-      { name: '< -1 DP', count: bucket1, fill: '#EF4444' }, // Red
-      { name: '-1 DP a Média', count: bucket2, fill: '#A855F7' }, // Purple
-      { name: 'Média a +1 DP', count: bucket3, fill: '#c084fc' }, // Light purple
-      { name: '> +1 DP', count: bucket4, fill: '#3B82F6' }, // Blue
+      { name: '< -2 DP', count: bucket1, fill: '#ef4444' }, // Red
+      { name: '-2 a -1 DP', count: bucket2, fill: '#eab308' }, // Yellow
+      { name: '-1 a Média', count: bucket3, fill: '#3b82f6' }, // Blue
+      { name: '> Média', count: bucket4, fill: '#22c55e' }, // Green
     ]
   }, [grades])
 

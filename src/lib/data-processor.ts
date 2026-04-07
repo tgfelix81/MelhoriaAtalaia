@@ -1,10 +1,5 @@
 import { ENRICHED_NOTAS, DISCIPLINAS_FISICAS } from './mock-data'
-import {
-  calculateMean,
-  calculateStandardDeviation,
-  calculateQuartiles,
-  getAlertLevel,
-} from './statistics'
+import { calculateMean, calculateStandardDeviation, calculateQuartiles } from './statistics'
 
 const TFM_NAME = 'Treinamento Físico Militar (TFM)'
 
@@ -71,7 +66,18 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
 
   filtered.forEach((g) => {
     const stats = subjectStats.get(g.disciplina)!
-    const alertLevel = getAlertLevel(g.valor, stats.mean, stats.sd, stats.q1, stats.iqr)
+
+    // Custom Alert Level based on Acceptance Criteria
+    let alertLevel = 'Dentro do padrão'
+    if (g.valor < stats.mean - 2 * stats.sd) {
+      alertLevel = 'Prioridade alta'
+    } else if (g.valor < stats.q1 - 1.5 * stats.iqr) {
+      alertLevel = 'Outlier'
+    } else if (g.valor < stats.mean - stats.sd) {
+      alertLevel = 'Risco'
+    } else if (g.valor < stats.mean) {
+      alertLevel = 'Atenção'
+    }
 
     if (alertLevel !== 'Dentro do padrão') {
       numAlertas++

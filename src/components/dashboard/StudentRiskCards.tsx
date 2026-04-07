@@ -48,13 +48,13 @@ export function StudentRiskCards({ alunos, isLoading }: { alunos: any[]; isLoadi
   const getColor = (classif: string) => {
     switch (classif) {
       case 'Atenção':
-        return 'bg-[#FACC15] text-yellow-950 border-[#FACC15]'
+        return 'bg-blue-500 text-white border-blue-500'
       case 'Risco':
-        return 'bg-[#FB923C] text-white border-[#FB923C]'
+        return 'bg-yellow-500 text-white border-yellow-500'
       case 'Outlier':
-        return 'bg-[#EF4444] text-white border-[#EF4444]'
+        return 'bg-orange-500 text-white border-orange-500'
       case 'Prioridade alta':
-        return 'bg-[#A855F7] text-white border-[#A855F7]'
+        return 'bg-red-500 text-white border-red-500'
       default:
         return 'bg-slate-200 text-slate-800 border-slate-200'
     }
@@ -93,11 +93,17 @@ export function StudentRiskCards({ alunos, isLoading }: { alunos: any[]; isLoadi
                 <div className="font-semibold text-sm truncate" title={aluno.nome_guerra}>
                   {aluno.numero} - {aluno.nome_guerra}
                 </div>
-                <div className="text-xs text-muted-foreground truncate mt-0.5 flex flex-col gap-0.5">
-                  <span title={aluno.disciplina}>{aluno.disciplina}</span>
-                  <span className="font-medium text-slate-500" title={aluno.uete}>
-                    {aluno.uete}
+                <div className="text-xs text-muted-foreground truncate mt-1 flex flex-col items-start gap-1.5">
+                  <span title={aluno.disciplina} className="truncate w-full">
+                    {aluno.disciplina}
                   </span>
+                  <Badge
+                    variant="secondary"
+                    className="font-medium text-[10px] h-4 px-1.5 rounded-sm"
+                    title="UETE"
+                  >
+                    {aluno.uete}
+                  </Badge>
                 </div>
               </div>
               <div className="flex items-center justify-between mt-2">
