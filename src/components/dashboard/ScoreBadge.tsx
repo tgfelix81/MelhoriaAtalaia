@@ -1,12 +1,13 @@
+import { Badge } from '@/components/ui/badge'
+
 export function ScoreBadge({ score }: { score: number }) {
-  let colorClass = 'bg-[#3B82F6]/10 text-[#3B82F6]' // Blue
-  if (score < 5)
-    colorClass = 'bg-[#EF4444]/10 text-[#EF4444]' // Red
-  else if (score < 7) colorClass = 'bg-[#FBBF24]/10 text-[#FBBF24]' // Yellow
+  let color = 'bg-green-100 text-green-700'
+  if (score < 5) color = 'bg-red-100 text-red-700'
+  else if (score < 7) color = 'bg-yellow-100 text-yellow-700'
 
   return (
-    <span className={`px-2 py-1 rounded-md text-xs font-semibold ${colorClass}`}>
+    <Badge variant="outline" className={`${color} font-mono border-transparent`}>
       {score.toFixed(1)}
-    </span>
+    </Badge>
   )
 }

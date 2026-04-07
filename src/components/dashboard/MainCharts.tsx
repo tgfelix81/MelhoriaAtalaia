@@ -4,13 +4,14 @@ import { BoxPlotChart } from '@/components/charts/BoxPlotChart'
 import { DistributionChart } from '@/components/charts/DistributionChart'
 import { ScatterPlotChart } from '@/components/charts/ScatterPlotChart'
 import { StandardDeviationChart } from '@/components/charts/StandardDeviationChart'
+import { ComparativeDisciplinesChart } from '@/components/charts/ComparativeDisciplinesChart'
 import { ENRICHED_NOTAS } from '@/lib/mock-data'
 import useDashboardStore from '@/stores/useDashboardStore'
 import { Info } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function MainCharts() {
-  const { uete, disciplina, tipoProva } = useDashboardStore()
+  const { uete, disciplina } = useDashboardStore()
 
   const { validGrades, scatterData } = useMemo(() => {
     const grades: number[] = []
@@ -19,14 +20,41 @@ export function MainCharts() {
     ENRICHED_NOTAS.forEach((n) => {
       if (uete !== 'Todas' && n.aluno.uete !== uete) return
       if (disciplina !== 'Todas' && n.disciplina.nome_disciplina !== disciplina) return
-      if (tipoProva !== 'Todas' && n.disciplina.tipo_prova !== tipoProva) return
 
       grades.push(n.valor)
       scatter.push({ valor: n.valor, name: n.aluno.nome_guerra })
     })
 
     return { validGrades: grades, scatterData: scatter }
-  }, [uete, disciplina, tipoProva])
+  }, [uete, disciplina])
+
+  if (disciplina === 'Todas') {
+    return (
+      <div className="mt-6 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+        <Card className="flex flex-col">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-base">Comparativo de Desempenho por Disciplina</CardTitle>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-[#3B82F6]"></div> Acadêmica
+                </span>
+                <span className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-[#10B981]"></div> Física
+                </span>
+              </div>
+            </div>
+            <CardDescription>
+              Média de notas considerando {uete === 'Todas' ? 'todas as UETEs' : `a UETE ${uete}`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-end pt-4 pb-2 px-2">
+            <ComparativeDisciplinesChart uete={uete} />
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div

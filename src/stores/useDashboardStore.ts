@@ -3,14 +3,12 @@ import { useState, useEffect } from 'react'
 export type StoreState = {
   uete: string
   disciplina: string
-  tipoProva: string
   selectedStudentId: string | null
 }
 
 let state: StoreState = {
   uete: 'Todas',
   disciplina: 'Todas',
-  tipoProva: 'Todas',
   selectedStudentId: null,
 }
 

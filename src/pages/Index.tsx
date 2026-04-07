@@ -1,6 +1,7 @@
 import { KPICards } from '@/components/dashboard/KPICards'
 import { MainCharts } from '@/components/dashboard/MainCharts'
 import { AlertsTable } from '@/components/dashboard/AlertsTable'
+import { InstructorsTable } from '@/components/dashboard/InstructorsTable'
 import { FilterBar } from '@/components/dashboard/FilterBar'
 
 export default function Index() {
@@ -21,8 +22,13 @@ export default function Index() {
       <KPICards />
       <MainCharts />
 
-      <div className="mt-6 w-full">
-        <AlertsTable />
+      <div className="mt-6 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <AlertsTable />
+        </div>
+        <div className="lg:col-span-1">
+          <InstructorsTable />
+        </div>
       </div>
     </div>
   )
