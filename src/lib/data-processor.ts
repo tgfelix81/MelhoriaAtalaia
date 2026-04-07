@@ -83,6 +83,7 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
         id: g.aluno.id,
         numero: g.aluno.numero,
         nome_guerra: g.aluno.nome_guerra,
+        uete: g.uete,
         disciplina: g.disciplina,
         nota: g.valor,
         classificacao: alertLevel,
@@ -90,21 +91,24 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
 
       riskByDisciplineMap.set(g.disciplina, (riskByDisciplineMap.get(g.disciplina) || 0) + 1)
 
-      const instrKey = `Instrutor(a) de ${g.disciplina}`
+      const instrKey = `Instrutor(a) de ${g.disciplina} - ${g.uete}`
       if (!instructorsMap.has(instrKey)) {
-        instructorsMap.set(instrKey, { subject: g.disciplina, count: 0 })
+        instructorsMap.set(instrKey, { uete: g.uete, subject: g.disciplina, count: 0 })
       }
       instructorsMap.get(instrKey)!.count += 1
     }
   })
 
-  const riskByDiscipline = Array.from(riskByDisciplineMap.entries()).map(([disciplina, count]) => ({
-    disciplina,
-    alunosEmRisco: count,
-  }))
+  const riskByDiscipline = Array.from(riskByDisciplineMap.entries())
+    .map(([disciplina, count]) => ({
+      disciplina,
+      alunosEmRisco: count,
+    }))
+    .sort((a, b) => a.alunosEmRisco - b.alunosEmRisco)
 
   const instrutores_atencao = Array.from(instructorsMap.entries()).map(([name, data]) => ({
-    nome_instrutor: name,
+    nome_instrutor: `Instrutor(a) de ${data.subject}`,
+    uete: data.uete,
     disciplina: data.subject,
     num_alunos_risco: data.count,
     acao_recomendada: data.count > 10 ? 'Revisão Metodológica' : 'Acompanhamento Tutorial',
@@ -128,7 +132,7 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
     }))
   }
 
-  performanceOverview.sort((a, b) => a.name.localeCompare(b.name))
+  performanceOverview.sort((a, b) => a.media - b.media)
 
   return {
     estatisticas_gerais: {
@@ -141,5 +145,6 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
     alunos_risco: alunosRisco.sort((a, b) => a.nota - b.nota),
     instrutores_atencao,
     performanceOverview,
+    allGrades: allValues,
   }
 }

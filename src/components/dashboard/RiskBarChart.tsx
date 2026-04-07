@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Cell } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -30,12 +30,20 @@ export function RiskBarChart({ data, isLoading }: { data: any[]; isLoading: bool
               />
               <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
               <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-              <Bar
-                dataKey="alunosEmRisco"
-                fill="hsl(var(--primary))"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={50}
-              />
+              <Bar dataKey="alunosEmRisco" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                {data.map((entry, index) => {
+                  let fill = '#3B82F6'
+                  if (entry.alunosEmRisco > 15)
+                    fill = '#EF4444' // Red
+                  else if (entry.alunosEmRisco > 10)
+                    fill = '#F97316' // Orange
+                  else if (entry.alunosEmRisco > 5)
+                    fill = '#EAB308' // Yellow
+                  else fill = '#38BDF8' // Light Blue
+
+                  return <Cell key={`cell-${index}`} fill={fill} />
+                })}
+              </Bar>
             </BarChart>
           </ChartContainer>
         </div>

@@ -5,6 +5,9 @@ import { FilterBar } from '@/components/dashboard/FilterBar'
 import { StudentRiskCards } from '@/components/dashboard/StudentRiskCards'
 import { RiskBarChart } from '@/components/dashboard/RiskBarChart'
 import { PerformanceOverviewChart } from '@/components/dashboard/PerformanceOverviewChart'
+import { RiskLegend } from '@/components/dashboard/RiskLegend'
+import { StandardDeviationChart } from '@/components/charts/StandardDeviationChart'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import useDashboardStore from '@/stores/useDashboardStore'
 import { processDashboardData } from '@/lib/data-processor'
 
@@ -47,12 +50,35 @@ export default function Index() {
 
       <KPICards data={data?.estatisticas_gerais} isLoading={isLoading} />
 
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <PerformanceOverviewChart
+            data={data?.performanceOverview}
+            isLoading={isLoading}
+            isUeteFiltered={uete !== 'Todas'}
+          />
+        </div>
+        <div className="lg:col-span-1">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Distribuição Estatística (DP)</CardTitle>
+              <CardDescription>Alunos por desvio padrão em relação à média</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 pb-2">
+              {isLoading ? (
+                <div className="h-[240px] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                </div>
+              ) : (
+                <StandardDeviationChart grades={data?.allGrades || []} />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       <div className="mt-8">
-        <PerformanceOverviewChart
-          data={data?.performanceOverview}
-          isLoading={isLoading}
-          isUeteFiltered={uete !== 'Todas'}
-        />
+        <RiskLegend />
       </div>
 
       <div className="mt-8 space-y-6">
