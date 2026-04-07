@@ -27,13 +27,13 @@ export function StudentRiskCards({ alunos, isLoading }: { alunos: any[]; isLoadi
   const getColor = (classif: string) => {
     switch (classif) {
       case 'Atenção':
-        return 'bg-yellow-400 text-yellow-950 border-yellow-400'
+        return 'bg-[#FACC15] text-yellow-950 border-[#FACC15]'
       case 'Risco':
-        return 'bg-orange-500 text-white border-orange-500'
+        return 'bg-[#FB923C] text-white border-[#FB923C]'
       case 'Outlier':
-        return 'bg-red-600 text-white border-red-600'
+        return 'bg-[#EF4444] text-white border-[#EF4444]'
       case 'Prioridade alta':
-        return 'bg-purple-600 text-white border-purple-600'
+        return 'bg-[#A855F7] text-white border-[#A855F7]'
       default:
         return 'bg-slate-200 text-slate-800 border-slate-200'
     }

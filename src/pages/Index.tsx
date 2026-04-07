@@ -4,8 +4,9 @@ import { InstructorsTable } from '@/components/dashboard/InstructorsTable'
 import { FilterBar } from '@/components/dashboard/FilterBar'
 import { StudentRiskCards } from '@/components/dashboard/StudentRiskCards'
 import { RiskBarChart } from '@/components/dashboard/RiskBarChart'
+import { PerformanceOverviewChart } from '@/components/dashboard/PerformanceOverviewChart'
 import useDashboardStore from '@/stores/useDashboardStore'
-import { analisarRiscoUete } from '@/lib/edge-function'
+import { processDashboardData } from '@/lib/data-processor'
 
 export default function Index() {
   const { uete, disciplina } = useDashboardStore()
@@ -15,12 +16,16 @@ export default function Index() {
   useEffect(() => {
     let mounted = true
     setIsLoading(true)
-    analisarRiscoUete(uete, disciplina).then((res) => {
+
+    // Simulating async fetch for real-world like behavior
+    setTimeout(() => {
       if (mounted) {
+        const res = processDashboardData(uete, disciplina)
         setData(res)
         setIsLoading(false)
       }
-    })
+    }, 400)
+
     return () => {
       mounted = false
     }
@@ -42,10 +47,18 @@ export default function Index() {
 
       <KPICards data={data?.estatisticas_gerais} isLoading={isLoading} />
 
+      <div className="mt-8">
+        <PerformanceOverviewChart
+          data={data?.performanceOverview}
+          isLoading={isLoading}
+          isUeteFiltered={uete !== 'Todas'}
+        />
+      </div>
+
       <div className="mt-8 space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">
-            Alunos e Matérias em Risco por UETE
+            Alunos e Matérias em Risco
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
             <div className="lg:col-span-2 space-y-6">

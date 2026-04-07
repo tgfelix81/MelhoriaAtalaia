@@ -20,9 +20,9 @@ export function FilterBar() {
   }, [])
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+    <div className="flex flex-row items-center gap-3 w-full lg:w-auto bg-slate-50/50 p-2 rounded-lg border">
       <Select value={uete} onValueChange={(val) => setFilter('uete', val)}>
-        <SelectTrigger className="w-full sm:w-[200px] bg-background">
+        <SelectTrigger className="w-full min-w-[140px] sm:w-[200px] bg-white">
           <SelectValue placeholder="UETE" />
         </SelectTrigger>
         <SelectContent>
@@ -36,7 +36,7 @@ export function FilterBar() {
       </Select>
 
       <Select value={disciplina} onValueChange={(val) => setFilter('disciplina', val)}>
-        <SelectTrigger className="w-full sm:w-[250px] bg-background">
+        <SelectTrigger className="w-full min-w-[140px] sm:w-[250px] bg-white">
           <SelectValue placeholder="Disciplina" />
         </SelectTrigger>
         <SelectContent>
