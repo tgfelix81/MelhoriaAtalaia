@@ -158,12 +158,28 @@ export function MultipleRiskStudents({ data, isLoading }: { data: any[]; isLoadi
                     </ScrollArea>
                   </div>
 
-                  {(student.hasHighRisk || student.totalRisks >= 3) && (
-                    <div className="bg-red-100 text-red-800 border border-red-200 rounded-md p-2 text-xs font-bold flex items-center gap-1.5 mt-auto">
-                      <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
-                      Intervenção pedagógica urgente
-                    </div>
-                  )}
+                  <div
+                    className={cn(
+                      'rounded-md p-2 text-xs font-bold flex items-center gap-1.5 mt-auto border',
+                      student.totalRisks >= 4
+                        ? 'bg-red-100 text-red-800 border-red-200'
+                        : student.totalRisks === 3
+                          ? 'bg-orange-100 text-orange-800 border-orange-200'
+                          : 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                    )}
+                  >
+                    <AlertTriangle
+                      className={cn(
+                        'h-4 w-4 shrink-0',
+                        student.totalRisks >= 4
+                          ? 'text-red-600'
+                          : student.totalRisks === 3
+                            ? 'text-orange-600'
+                            : 'text-yellow-600',
+                      )}
+                    />
+                    Intervenção pedagógica urgente
+                  </div>
                 </CardContent>
               </Card>
             )

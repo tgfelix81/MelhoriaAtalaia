@@ -63,8 +63,7 @@ export function InstructorsTable({ data, isLoading }: { data: any[]; isLoading: 
             <Table>
               <TableHeader className="sticky top-0 bg-slate-50 shadow-sm z-10">
                 <TableRow className="hover:bg-slate-50">
-                  <TableHead>Nome do Instrutor</TableHead>
-                  <TableHead>UETE</TableHead>
+                  <TableHead>Nome do Instrutor e UETE</TableHead>
                   <TableHead>Disciplina</TableHead>
                   <TableHead className="text-center">
                     <Button
@@ -95,13 +94,14 @@ export function InstructorsTable({ data, isLoading }: { data: any[]; isLoading: 
                       )}
                     >
                       <TableCell>
-                        <div className="font-medium whitespace-nowrap text-sm">
-                          {inst.nome_instrutor}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-xs text-muted-foreground truncate max-w-[80px]">
-                          {inst.uete}
+                        <div className="font-medium whitespace-nowrap text-sm flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <span>{inst.nome_instrutor}</span>
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] font-normal px-1.5 h-4 bg-slate-50 text-slate-500 border-slate-200 w-fit"
+                          >
+                            {inst.uete}
+                          </Badge>
                         </div>
                       </TableCell>
                       <TableCell>

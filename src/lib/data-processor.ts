@@ -129,6 +129,10 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
   })
 
   const multipleRisks = Array.from(studentRisksMap.values())
+    .map((s) => ({
+      ...s,
+      risks: s.risks.filter((r) => r.classificacao !== 'Atenção'),
+    }))
     .filter((s) => s.risks.length >= 2)
     .map((s) => ({
       id: s.aluno.id,
