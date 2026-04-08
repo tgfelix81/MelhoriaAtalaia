@@ -44,7 +44,9 @@ export function InstructorsTable({ data, isLoading }: { data: any[]; isLoading: 
     <Card className="animate-fade-in-up h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-base">Apoio Pedagógico a Instrutores</CardTitle>
-        <CardDescription>Corpo docente com alta concentração de alunos em risco</CardDescription>
+        <CardDescription>
+          Corpo docente com alunos em risco (Prioridade Alta, Outlier ou Risco)
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto p-0 px-6 pb-6">
         {instructors.length === 0 ? (

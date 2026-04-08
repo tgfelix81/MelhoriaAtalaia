@@ -7,6 +7,7 @@ import { RiskBarChart } from '@/components/dashboard/RiskBarChart'
 import { PerformanceOverviewChart } from '@/components/dashboard/PerformanceOverviewChart'
 import { RiskLegend } from '@/components/dashboard/RiskLegend'
 import { StandardDeviationChart } from '@/components/charts/StandardDeviationChart'
+import { MultipleRiskStudents } from '@/components/dashboard/MultipleRiskStudents'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { DataManagement } from '@/components/dashboard/DataManagement'
 import useDashboardStore from '@/stores/useDashboardStore'
@@ -83,6 +84,15 @@ export default function Index() {
 
       <div className="mt-8">
         <RiskLegend />
+      </div>
+
+      <div className="mt-8 space-y-6">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">
+            Análise de Riscos Múltiplos
+          </h2>
+          <MultipleRiskStudents data={data?.multipleRisks} isLoading={isLoading} />
+        </div>
       </div>
 
       <div className="mt-8 space-y-6">

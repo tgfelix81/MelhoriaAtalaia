@@ -62,7 +62,16 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
   let numOutliers = 0
   const alunosRisco: any[] = []
   const riskByDisciplineMap = new Map<string, number>()
-  const instructorsMap = new Map<string, { subject: string; count: number }>()
+  const instructorsMap = new Map<string, { subject: string; count: number; uete: string }>()
+
+  const studentRisksMap = new Map<
+    string,
+    {
+      aluno: any
+      uete: string
+      risks: Array<{ disciplina: string; nota: number; classificacao: string }>
+    }
+  >()
 
   filtered.forEach((g) => {
     const stats = subjectStats.get(g.disciplina)!
@@ -97,13 +106,42 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
 
       riskByDisciplineMap.set(g.disciplina, (riskByDisciplineMap.get(g.disciplina) || 0) + 1)
 
-      const instrKey = `Instrutor(a) de ${g.disciplina} - ${g.uete}`
-      if (!instructorsMap.has(instrKey)) {
-        instructorsMap.set(instrKey, { uete: g.uete, subject: g.disciplina, count: 0 })
+      const studentKey = g.aluno.id
+      if (!studentRisksMap.has(studentKey)) {
+        studentRisksMap.set(studentKey, { aluno: g.aluno, uete: g.uete, risks: [] })
       }
-      instructorsMap.get(instrKey)!.count += 1
+      studentRisksMap.get(studentKey)!.risks.push({
+        disciplina: g.disciplina,
+        nota: g.valor,
+        classificacao: alertLevel,
+      })
+
+      // Severity Filtering for Instructors: Only Prioridade Alta, Outlier, and Risco
+      // Excludes "Atenção"
+      if (alertLevel === 'Risco' || alertLevel === 'Outlier' || alertLevel === 'Prioridade alta') {
+        const instrKey = `Instrutor(a) de ${g.disciplina} - ${g.uete}`
+        if (!instructorsMap.has(instrKey)) {
+          instructorsMap.set(instrKey, { uete: g.uete, subject: g.disciplina, count: 0 })
+        }
+        instructorsMap.get(instrKey)!.count += 1
+      }
     }
   })
+
+  const multipleRisks = Array.from(studentRisksMap.values())
+    .filter((s) => s.risks.length >= 2)
+    .map((s) => ({
+      id: s.aluno.id,
+      numero: s.aluno.numero,
+      nome_guerra: s.aluno.nome_guerra,
+      uete: s.uete,
+      risks: s.risks.sort((a, b) => a.nota - b.nota),
+      totalRisks: s.risks.length,
+      hasHighRisk: s.risks.some(
+        (r) => r.classificacao === 'Prioridade alta' || r.classificacao === 'Outlier',
+      ),
+    }))
+    .sort((a, b) => b.totalRisks - a.totalRisks)
 
   const riskByDiscipline = Array.from(riskByDisciplineMap.entries())
     .map(([disciplina, count]) => ({
@@ -148,6 +186,7 @@ export function processDashboardData(ueteFilter: string, disciplinaFilter: strin
       num_outliers: numOutliers,
     },
     riskByDiscipline,
+    multipleRisks,
     alunos_risco: alunosRisco.sort((a, b) => a.nota - b.nota),
     instrutores_atencao,
     performanceOverview,
